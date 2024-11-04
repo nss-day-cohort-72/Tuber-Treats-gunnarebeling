@@ -1,4 +1,6 @@
+using System.Reflection.Metadata.Ecma335;
 using TuberTreats.Models;
+using TuberTreats.Models.DTOs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -84,7 +86,31 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 //add endpoints here
+app.MapGet("/api/tuberorders", () => {
 
+   return orders.Select(order => {
+        Customer  customer = customers.FirstOrDefault(customer => customer.Id == order.CustomerId);
+        TuberDriver tuberDriver = tuberDrivers.FirstOrDefault(td => td.Id == order.TuberDriverId);
+        List<Topping> ordertoppings = tuberToppings
+        .Where(tt => tt.TuberOrderId == order.Id)
+        .Select(t => toppings.FirstOrDefault(topping => topping.Id == t.ToppingId)).ToList();
+        
+      return new TuberOrderDTO
+      {
+        Id = order.Id,
+        OrderPlacedOnDate = order.DeliveredOnDate,
+        CustomerId = order.CustomerId,
+        Customer = new CustomerDTO {Id = customer.Id, Name = customer.Name, Address = customer.Address},
+        TuberDriverId = order.TuberDriverId,
+        TuberDriver = new TuberDriverDTO {Id = tuberDriver.Id, Name = tuberDriver.Name},
+        DeliveredOnDate = order.DeliveredOnDate,
+        Toppings =  ordertoppings.Select(ot => new ToppingDTO {Id=ot.Id, Name = ot.Name}).ToList()
+
+        
+    
+      }; 
+    });
+});
 app.Run();
 //don't touch or move this!
 public partial class Program { }

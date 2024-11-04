@@ -56,6 +56,15 @@ List<TuberOrder> orders = new List<TuberOrder>
     }
 };
 
+List<TuberTopping> tuberToppings = new List<TuberTopping>
+{
+    new TuberTopping { Id = 1, TuberOrderId = 1, ToppingId = 1 }, 
+    new TuberTopping { Id = 2, TuberOrderId = 1, ToppingId = 3 }, 
+    new TuberTopping { Id = 3, TuberOrderId = 2, ToppingId = 2 }, 
+    new TuberTopping { Id = 4, TuberOrderId = 2, ToppingId = 4 }, 
+    new TuberTopping { Id = 5, TuberOrderId = 3, ToppingId = 1 }, 
+    new TuberTopping { Id = 6, TuberOrderId = 3, ToppingId = 5 }
+};
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

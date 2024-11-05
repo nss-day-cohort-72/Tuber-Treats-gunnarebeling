@@ -37,8 +37,8 @@ List<TuberOrder> orders = new List<TuberOrder>
         Id = 1,
         OrderPlacedOnDate = new DateTime(2024, 11, 1, 14, 30, 0),
         CustomerId = 1,
-        TuberDriverId = 1
-        
+        TuberDriverId = 1,
+        DeliveredOnDate = new DateTime(2024, 11, 2, 10, 45, 0)
     },
     new TuberOrder
     {
@@ -95,7 +95,20 @@ app.MapGet("/tuberorders", () => {
         .Where(tt => tt.TuberOrderId == order.Id)
         .Select(t => toppings.FirstOrDefault(topping => topping.Id == t.ToppingId)).ToList();
         order.DeliveredOnDate = order.DeliveredOnDate;
-      return order;
+      return new TuberOrderDTO
+      {
+        Id = order.Id,
+        OrderPlacedOnDate = (DateTime)order.DeliveredOnDate,
+        CustomerId = order.CustomerId,
+        Customer = new CustomerDTO {Id = customer.Id, Name = customer.Name, Address = customer.Address},
+        TuberDriverId = order.TuberDriverId,
+        TuberDriver = new TuberDriverDTO {Id = tuberDriver.Id, Name = tuberDriver.Name},
+        DeliveredOnDate = order.DeliveredOnDate,
+        Toppings =  ordertoppings.Select(ot => new ToppingDTO {Id=ot.Id, Name = ot.Name}).ToList()
+
+        
+    
+      }; 
     });
 });
 
@@ -108,10 +121,11 @@ app.MapGet("/tuberorders/{id}", (int id) => {
     .Where(tt => tt.TuberOrderId == order.Id)
     .Select(t => toppings.FirstOrDefault(topping => topping.Id == t.ToppingId)).ToList();
     
+    
     return new TuberOrderDTO
     {
         Id = order.Id,
-        OrderPlacedOnDate = (DateTime)order.DeliveredOnDate,
+        OrderPlacedOnDate = order.OrderPlacedOnDate,
         CustomerId = order.CustomerId,
         Customer = new CustomerDTO {Id = customer.Id, Name = customer.Name, Address = customer.Address},
         TuberDriverId = order.TuberDriverId,
@@ -169,6 +183,18 @@ app.MapGet("/toppings", () =>
     });
 });
 
+app.MapGet("/toppings/{id}", (int id) => 
+{
+    Topping topping = toppings.FirstOrDefault(t => t.Id == id);
+   
+        return Results.Ok(new ToppingDTO 
+        {
+            Id = topping.Id,
+            Name = topping.Name
+        });
+   
+    
+});
 app.Run();
 //don't touch or move this!
 public partial class Program { }

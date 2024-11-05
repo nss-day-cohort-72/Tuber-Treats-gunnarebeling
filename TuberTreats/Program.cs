@@ -111,6 +111,51 @@ app.MapGet("/api/tuberorders", () => {
       }; 
     });
 });
+
+app.MapGet("/api/tuberorders/{id}", (int id) => {
+
+    TuberOrder order = orders.FirstOrDefault(o => o.Id == id);
+    Customer  customer = customers.FirstOrDefault(customer => customer.Id == order.CustomerId);
+    TuberDriver tuberDriver = tuberDrivers.FirstOrDefault(td => td.Id == order.TuberDriverId);
+    List<Topping> ordertoppings = tuberToppings
+    .Where(tt => tt.TuberOrderId == order.Id)
+    .Select(t => toppings.FirstOrDefault(topping => topping.Id == t.ToppingId)).ToList();
+    
+    return new TuberOrderDTO
+    {
+        Id = order.Id,
+        OrderPlacedOnDate = order.DeliveredOnDate,
+        CustomerId = order.CustomerId,
+        Customer = new CustomerDTO {Id = customer.Id, Name = customer.Name, Address = customer.Address},
+        TuberDriverId = order.TuberDriverId,
+        TuberDriver = new TuberDriverDTO {Id = tuberDriver.Id, Name = tuberDriver.Name},
+        DeliveredOnDate = order.DeliveredOnDate,
+        Toppings =  ordertoppings.Select(ot => new ToppingDTO {Id=ot.Id, Name = ot.Name}).ToList()
+    }; 
+    
+});
+
+app.MapPost("/api/tuberorders", (TuberOrder tuberOrder) => 
+{
+    tuberOrder.Id = orders.Any() ? orders.Max(o => o.Id) + 1 : 1;
+    tuberOrder.OrderPlacedOnDate = DateTime.Now;
+    orders.Add(tuberOrder);
+    return Results.Ok(new TuberOrderDTO
+    {
+        Id = tuberOrder.Id,
+        OrderPlacedOnDate = tuberOrder.OrderPlacedOnDate,
+        CustomerId = tuberOrder.CustomerId,
+        
+    });
+});
+
+app.MapPut("/api/tuberorders/{id}", (int id, int driverId) => 
+{   
+    TuberOrder tuberOrder = orders.FirstOrDefault(o => o.Id == id);
+    tuberOrder.TuberDriverId = driverId;
+    return Results.Ok(tuberOrder);
+
+});
 app.Run();
 //don't touch or move this!
 public partial class Program { }
